@@ -16,19 +16,12 @@ use -g and -n arguments
 $ curl -s https://raw.githubusercontent.com/taoyama/Add-NSG-Rule/master/nsg.sh \
 > | bash -s -- -g testgroup -n testvm
 Source IP Address = xxx.xxx.xxx.xxx
-AddressPrefix    Name          PrivateEndpointNetworkPolicies    PrivateLinkServiceNetworkPolicies    ProvisioningState
-   ResourceGroup
----------------  ------------  --------------------------------  -----------------------------------  -------------------  ---------------
-10.0.0.0/24      testvmSubnet  Enabled                           Enabled                              Succeeded
-   testgroup
 Access    DestinationAddressPrefix    DestinationPortRange    Direction    Name    Priority    Protocol    ProvisioningState    ResourceGroup    SourceAddressPrefix    SourcePortRange
 --------  --------------------------  ----------------------  -----------  ------  ----------  ----------  -------------------  ---------------  ---------------------  -----------------
-Allow     *                           22                      Inbound      SSH     100         *           Succeeded
-        testgroup        xxx.xxx.xxx.xxx/32       *
+Allow     *                           22                      Inbound      SSH     100         Tcp         Succeeded            testgroup        xxx.xxx.xxx.xxx/32       *
 Access    DestinationAddressPrefix    DestinationPortRange    Direction    Name    Priority    Protocol    ProvisioningState    ResourceGroup    SourceAddressPrefix    SourcePortRange
 --------  --------------------------  ----------------------  -----------  ------  ----------  ----------  -------------------  ---------------  ---------------------  -----------------
-Allow     *                           22                      Inbound      SSH     100         *           Succeeded
-        testgroup        xxx.xxx.xxx.xxx/32       *
+Allow     *                           22                      Inbound      SSH     100         Tcp         Succeeded            testgroup        xxx.xxx.xxx.xxx/32       *
 ```
 
 ## Example2
