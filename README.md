@@ -5,10 +5,8 @@ This script detect your IP to connect internet.
 And then create rule to allow ssh from the IP.
 
 ## Usage
-specify ResourceGroupName and VMName
 ```bash
-curl -s https://raw.githubusercontent.com/taoyama/Add-NSG-Rule/master/nsg.sh \
-| bash -s -- -g ResourceGroupName -n VMName
+nsg.sh [-g VMResourceGroup] [-n VMName] [-p <NSGRulePriority>]
 ```
 ## Example1
 use -g and -n arguments
