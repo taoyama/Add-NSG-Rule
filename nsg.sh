@@ -24,6 +24,12 @@ while getopts ":g:n:p:" o; do
 done
 shift $((OPTIND-1))
 
+if [ -z "${resourcegroup}" ]; then
+    read -p "ResourceGroup: " resourcegroup
+fi
+if [ -z "${vmname}" ]; then
+    read -p "VmName: " vmname
+fi
 if [ -z "${resourcegroup}" ] || [ -z "${vmname}" ]; then
     usage
 fi
@@ -59,5 +65,5 @@ fi
 subnetnsggroup=$(echo $subnetnsgid | cut -d '/' -f 5)
 subnetnsgname=$(echo $subnetnsgid | cut -d '/' -f 9)
 
-az network nsg rule create --resource-group $nicnsggroup --nsg-name $nicnsgname --name SSH --priority $priority --direction Inbound --source-address-prefixes $sourcecidr --destination-port-ranges 22 -o table
-az network nsg rule create --resource-group $subnetnsggroup --nsg-name $subnetnsgname --name SSH --priority $priority --direction Inbound --source-address-prefixes $sourcecidr --destination-port-ranges 22 -o table
+az network nsg rule create --resource-group $nicnsggroup --nsg-name $nicnsgname --name SSH --priority $priority --direction Inbound --protocol Tcp --source-address-prefixes $sourcecidr --destination-port-ranges 22 -o table
+az network nsg rule create --resource-group $subnetnsggroup --nsg-name $subnetnsgname --name SSH --priority $priority --direction Inbound --protocol Tcp --source-address-prefixes $sourcecidr --destination-port-ranges 22 -o table
