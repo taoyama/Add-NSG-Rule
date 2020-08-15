@@ -1,3 +1,5 @@
+#!/usr/bin/env pwsh
+
 param (
         [parameter(mandatory=$true)][string]$ResourceGroupName,
         [parameter(mandatory=$true)][string]$VMName
@@ -5,6 +7,7 @@ param (
 
 function UpdateNSG ($NSG) {
     Remove-AzNetworkSecurityRuleConfig -Name "RDP" -NetworkSecurityGroup $NSG | Out-Null
+    Remove-AzNetworkSecurityRuleConfig -Name "SSH" -NetworkSecurityGroup $NSG | Out-Null
     Add-AzNetworkSecurityRuleConfig -Name "RDP" -Access Allow `
     -Protocol TCP -Direction Inbound -Priority 100 -SourceAddressPrefix "$sourcecidr" -SourcePortRange * `
     -DestinationAddressPrefix * -DestinationPortRange "3389" -NetworkSecurityGroup $NSG | Out-Null
@@ -44,3 +47,4 @@ Write-Output "Source IP Address = $pip"
 
 UpdateNSG($NicNSG)
 UpdateNSG($SubnetNSG)
+
