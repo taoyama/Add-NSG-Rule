@@ -1,9 +1,14 @@
 #!/bin/bash
 set -e
 
-usage() { echo "Usage: $0 [-g VMResourceGroup] [-n VMName] [-p <NSGRulePriority>]" 1>&2; exit 1; }
+declare -A ports=(
+    ["SSH"]="22"
+    ["RDP"]="3389"
+)
 
-while getopts ":g:n:p:" o; do
+usage() { echo "Usage: $0 [-g VMResourceGroup] [-n VMName] [-p <NSGRulePriority>] [-s <SSH/RDP>]" 1>&2; exit 1; }
+
+while getopts ":g:n:p:s:" o; do
     case "${o}" in
         g)
             resourcegroup=${OPTARG}
@@ -14,6 +19,14 @@ while getopts ":g:n:p:" o; do
         p)
             priority=${OPTARG}
             if [ $priority -lt 100 ] || [ $priority -gt 4096 ]; then
+                usage
+            fi
+            ;;
+        s)
+            service=${OPTARG}
+            
+            if [ $service != "SSH" ] && [ $service != "RDP" ]; then
+                echo $service
                 usage
             fi
             ;;
@@ -36,6 +49,10 @@ fi
 
 if [ -z "${priority}" ]; then
     priority=100
+fi
+
+if [ -z "${service}" ]; then
+    service="SSH"
 fi
 
 # get source address prefix
@@ -65,5 +82,5 @@ fi
 subnetnsggroup=$(echo $subnetnsgid | cut -d '/' -f 5)
 subnetnsgname=$(echo $subnetnsgid | cut -d '/' -f 9)
 
-az network nsg rule create --resource-group $nicnsggroup --nsg-name $nicnsgname --name SSH --priority $priority --direction Inbound --protocol Tcp --source-address-prefixes $sourcecidr --destination-port-ranges 22 -o table
-az network nsg rule create --resource-group $subnetnsggroup --nsg-name $subnetnsgname --name SSH --priority $priority --direction Inbound --protocol Tcp --source-address-prefixes $sourcecidr --destination-port-ranges 22 -o table
+az network nsg rule create --resource-group $nicnsggroup --nsg-name $nicnsgname --name "$service" --priority $priority --direction Inbound --protocol Tcp --source-address-prefixes $sourcecidr --destination-port-ranges ${ports[$service]} -o table
+az network nsg rule create --resource-group $subnetnsggroup --nsg-name $subnetnsgname --name "$service" --priority $priority --direction Inbound --protocol Tcp --source-address-prefixes $sourcecidr --destination-port-ranges ${ports[$service]} -o table
