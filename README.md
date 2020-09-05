@@ -2,11 +2,11 @@
 
 ## Description
 This script detect your IP to connect internet.
-And then create rule to allow ssh from the IP.
+And then create rule to allow ssh/rdp from the IP.
 
 ## Usage
 ```bash
-nsg.sh [-g VMResourceGroup] [-n VMName] [-p <NSGRulePriority>]
+nsg.sh [-g VMResourceGroup] [-n VMName] [-p <NSGRulePriority>] [-s "SSH"/"RDP"]
 ```
 ## Example1
 use -g and -n arguments
