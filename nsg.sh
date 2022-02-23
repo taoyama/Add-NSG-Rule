@@ -52,13 +52,22 @@ if [ -z "${priority}" ]; then
 fi
 
 if [ -z "${service}" ]; then
-    service="SSH"
+    osType=$(az vm show -g ${resourcegroup} -n ${vmname} --query storageProfile.osDisk.osType -o tsv)
+    echo "osType: $osType"
+    if [ $osType == "Linux" ]; then
+	    service="SSH"
+    elif [ $osType == "Windows" ]; then
+	    service="RDP"
+    else
+	    echo "unknown osType"
+	    exit 1;
+    fi
 fi
 
 # get source address prefix
 pip=$(dig -4 +short myip.opendns.com @resolver1.opendns.com)
 sourcecidr="$pip/32"
-echo "Source IP Address = $pip"
+echo "Source IP Address: $pip"
 
 # get nic id
 nicid=$(az vm show --resource-group "$resourcegroup" --name "$vmname" --query networkProfile.networkInterfaces[].id -o tsv)
@@ -84,3 +93,4 @@ subnetnsgname=$(echo $subnetnsgid | cut -d '/' -f 9)
 
 az network nsg rule create --resource-group $nicnsggroup --nsg-name $nicnsgname --name "$service" --priority $priority --direction Inbound --protocol Tcp --source-address-prefixes $sourcecidr --destination-port-ranges ${ports[$service]} -o table
 az network nsg rule create --resource-group $subnetnsggroup --nsg-name $subnetnsgname --name "$service" --priority $priority --direction Inbound --protocol Tcp --source-address-prefixes $sourcecidr --destination-port-ranges ${ports[$service]} -o table
+
