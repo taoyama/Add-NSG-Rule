@@ -33,7 +33,7 @@ if [ -z "${resourcegroup}" ] || [ -z "${vmname}" ]; then
     usage
 fi
 
-IFS=$'\r\n' eval 'vminfo=($(az vm show -g ${resourcegroup} -n ${vmname} -o tsv --query "[id, location, storageProfile.osDisk.osType]"))'
+vminfo=($(az vm show -g ${resourcegroup} -n ${vmname} -o tsv --query "[id, location, storageProfile.osDisk.osType]"))
 vmid="${vminfo[0]}"
 location="${vminfo[1]}"
 osType=${vminfo[2]}
