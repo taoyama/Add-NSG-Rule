@@ -58,11 +58,33 @@ echo "Source IP Address: $pip"
 # https://docs.microsoft.com/en-us/rest/api/securitycenter/jit-network-access-policies/create-or-update
 enable_jit() {
 	URI="https://management.azure.com/subscriptions/${subid}/resourceGroups/${resourcegroup}/providers/Microsoft.Security/locations/${location}/jitNetworkAccessPolicies/default?api-version=2020-01-01"
-	BODY='{"kind": "Basic","properties":{"virtualMachines":[{"id":"VMID","ports":[{"number": 22,"protocol": "*","allowedSourceAddressPrefix": "MYIP","maxRequestAccessDuration": "PT3H"},{"number": 3389,"protocol": "*","allowedSourceAddressPrefix": "MYIP","maxRequestAccessDuration": "PT3H"}]}]}}'
-	BODY=${BODY//MYIP/${pip}}
-	BODY=${BODY//VMID/${vmid}}
-	echo $BODY
-
+	BODY=$(cat << EOS
+{
+    "kind": "Basic",
+    "properties": {
+        "virtualMachines": [
+            {
+                "id": "${vmid}",
+                "ports": [
+                    {
+                        "number": 22,
+                        "protocol": "TCP",
+                        "allowedSourceAddressPrefix": "${pip}",
+                        "maxRequestAccessDuration": "PT3H"
+                    },
+                    {
+                        "number": 3389,
+                        "protocol": "TCP",
+                        "allowedSourceAddressPrefix": "${pip}",
+                        "maxRequestAccessDuration": "PT3H"
+                    }
+                ]
+            }
+        ]
+    }
+}
+EOS
+)
 	az rest --verbose --method delete --uri "${URI}"
 	az rest --verbose --method put --uri "${URI}" --body "${BODY}"
 }
@@ -70,12 +92,23 @@ enable_jit() {
 # https://docs.microsoft.com/en-us/rest/api/securitycenter/jit-network-access-policies/initiate
 initiate_jit() {
 	URI="https://management.azure.com/subscriptions/${subid}/resourceGroups/${resourcegroup}/providers/Microsoft.Security/locations/${location}/jitNetworkAccessPolicies/default/initiate?api-version=2020-01-01"
-	BODY='{"virtualMachines":[{"id":"VMID","ports":[{"number":MYPORT,"duration":"PT3H","allowedSourceAddressPrefix":"MYIP"}]}]}'
-	BODY=${BODY//MYIP/${pip}}
-	BODY=${BODY//MYPORT/${ports[$service]}}
-	BODY=${BODY//VMID/${vmid}}
-	echo $BODY
-
+	BODY=$(cat <<EOS
+{
+    "virtualMachines": [
+        {
+            "id": "${vmid}",
+            "ports": [
+                {
+                    "number": ${ports[$service]},
+                    "duration": "PT3H",
+                    "allowedSourceAddressPrefix": "${pip}"
+                }
+            ]
+        }
+    ]
+}
+EOS
+)
 	az rest --verbose --method post --uri "${URI}" --body "${BODY}"
 }
 
