@@ -33,7 +33,12 @@ if [ -z "${resourcegroup}" ] || [ -z "${vmname}" ]; then
     usage
 fi
 
-osType=$(az vm show -g ${resourcegroup} -n ${vmname} --query storageProfile.osDisk.osType -o tsv)
+IFS=$'\r\n' eval 'vminfo=($(az vm show -g ${resourcegroup} -n ${vmname} -o tsv --query "[id, location, storageProfile.osDisk.osType]"))'
+vmid="${vminfo[0]}"
+location="${vminfo[1]}"
+osType=${vminfo[2]}
+subid=$(echo $vmid | cut -d \/ -f 3)
+
 echo "osType: $osType"
 if [ $osType == "Linux" ]; then
 	service="SSH"
@@ -48,11 +53,6 @@ fi
 pip=$(dig -4 +short myip.opendns.com @resolver1.opendns.com)
 sourcecidr="$pip/32"
 echo "Source IP Address: $pip"
-
-IFS=$'\r\n' eval 'vminfo=($(az vm show -g ${resourcegroup} -n ${vmname} -o tsv --query "[id, location]"))'
-vmid="${vminfo[0]}"
-location="${vminfo[1]}"
-subid=$(echo $vmid | cut -d \/ -f 3)
 
 # https://docs.microsoft.com/en-us/rest/api/securitycenter/jit-network-access-policies/delete
 # https://docs.microsoft.com/en-us/rest/api/securitycenter/jit-network-access-policies/create-or-update
