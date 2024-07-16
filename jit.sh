@@ -86,8 +86,8 @@ enable_jit() {
 }
 EOS
 )
-	az rest --verbose --method delete --uri "${URI}"
-	az rest --verbose --method put --uri "${URI}" --body "${BODY}"
+	az rest --method delete --uri "${URI}"
+	az rest --method put --uri "${URI}" --body "${BODY}"
 }
 
 # https://docs.microsoft.com/en-us/rest/api/securitycenter/jit-network-access-policies/initiate
@@ -110,9 +110,10 @@ initiate_jit() {
 }
 EOS
 )
-	az rest --verbose --method post --uri "${URI}" --body "${BODY}"
+	az rest --method post --uri "${URI}" --body "${BODY}"
 }
 
 enable_jit
+sleep 3
 initiate_jit
 
