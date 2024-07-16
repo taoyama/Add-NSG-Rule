@@ -50,11 +50,7 @@ else
 fi
 
 # get source address prefix
-pip=$(dig -4 +short myip.opendns.com @resolver1.opendns.com)
-if [ $? -ne 0 ]
-then
-  pip=$(curl -s https://ifconfig.me)
-fi
+pip=$(curl -s https://toaoyamaazureip.azurewebsites.net)
 
 sourcecidr="$pip/32"
 echo "Source IP Address: $pip"
